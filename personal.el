@@ -1,4 +1,48 @@
+(prelude-require-packages '(evil-leader ess polymode))
+
+(global-evil-leader-mode)
+
 (require 'ess-site)
+(require 'evil-leader)
+(evil-leader/set-leader "SPC")
+
+;; stolen from spacemacs ESS layer
+    (evil-leader/set-key-for-mode 'ess-julia-mode
+      "si" 'julia)
+    (evil-leader/set-key-for-mode 'ess-mode
+      "si" 'R
+      ;; noweb
+      "cC" 'ess-eval-chunk-and-go
+      "cc" 'ess-eval-chunk
+      "cd" 'ess-eval-chunk-and-step
+      "cm" 'ess-noweb-mark-chunk
+      "cN" 'ess-noweb-previous-chunk
+      "cn" 'ess-noweb-next-chunk
+      ;; REPL
+      "sB" 'ess-eval-buffer-and-go
+      "sb" 'ess-eval-buffer
+      "sD" 'ess-eval-function-or-paragraph-and-step
+      "sd" 'ess-eval-region-or-line-and-step
+      "sL" 'ess-eval-line-and-go
+      "sl" 'ess-eval-line
+      "sR" 'ess-eval-region-and-go
+      "sr" 'ess-eval-region
+      "sT" 'ess-eval-function-and-go
+      "st" 'ess-eval-function
+      ;; R helpers
+      "hd" 'ess-R-dv-pprint
+      "hi" 'ess-R-object-popup
+      "ht" 'ess-R-dv-ctable
+      )
+    (define-key ess-mode-map (kbd "<s-return>") 'ess-eval-line)
+    (define-key inferior-ess-mode-map (kbd "C-j") 'comint-next-input)
+    (define-key inferior-ess-mode-map (kbd "C-k") 'comint-previous-input)
+
+
+;; for mac..
+(setq mac-command-modifier 'meta)
+(setq mac-option-modifier 'super)
+
 ;;; MARKDOWN
 (add-to-list 'auto-mode-alist '("\\.md" . poly-markdown-mode))
 
@@ -19,7 +63,7 @@
 ;; also recommended for ESS use --
      (setq comint-scroll-to-bottom-on-output 'others)
        (setq comint-scroll-show-maximum-output t)
-;; somewhat extreme, almost disabling writing in *R*, 
+;; somewhat extreme, almost disabling writing in *R*,
 ;;    *shell* buffers above prompt:
      (setq comint-scroll-to-bottom-on-input 'this)
 ))
