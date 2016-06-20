@@ -51,7 +51,6 @@
 (add-to-list 'auto-mode-alist '("\\.Rnw" . poly-noweb+r-mode))
 (add-to-list 'auto-mode-alist '("\\.Rmd" . poly-markdown+r-mode))
 
-(load-theme 'birds-of-paradise-plus t)
 
 ;; http://ess.r-project.org/Manual/ess.html#Command-History
 (eval-after-load "comint"
