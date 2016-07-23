@@ -7,6 +7,13 @@
 ;                           ("http" . "proxy.work.com:911")
 ;			   ("https" . "proxy.work.com:911")))
 
+;; only if needed, spellchecking on windows (need Aspell installed)
+;; http://alienexp.blogspot.com/2013/04/emacs-flyspellispell-aspell-and-windows.html
+(add-to-list 'exec-path "C:/Program Files (x86)/Aspell/bin")
+(setq ispell-program-name "aspell")
+(setq ispell-dictionary "american")
+
+
 ;; melpa "getting started"
 (require 'package)
 (add-to-list 'package-archives
@@ -30,6 +37,7 @@
                      elpy
                      solarized-theme
                      zenburn-theme
+		     flycheck
                      ;; (and more packages...)
                      ))
 
@@ -54,7 +62,7 @@
 (require 'evil-leader)
 (require 'ido)
 (require 'ess-site)
-
+(require 'flycheck)
 (setq ido-enable-flex-matching t)
 (setq ido-everywhere t)
 (ido-mode 1)
@@ -63,6 +71,8 @@
 (global-evil-leader-mode)
 
 (evil-mode 1)
+
+(global-flycheck-mode)
 
 (setenv "WORKON_HOME" "C:/Miniconda3/envs")
 (pyvenv-mode 1)
