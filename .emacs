@@ -25,6 +25,7 @@
                      ess
                      auctex
                      pandoc-mode
+		     markdown-mode
                      polymode
                      elpy
                      solarized-theme
