@@ -30,6 +30,8 @@
                      evil
                      evil-leader
                      ess
+		     helm
+		     helm-descbinds
                      auctex
                      pandoc-mode
 		     markdown-mode
@@ -41,11 +43,11 @@
                      ;; (and more packages...)
                      ))
 
-					; fetch the list of packages available 
+;; fetch the list of packages available 
 (unless package-archive-contents
   (package-refresh-contents))
 
-					; install the missing packages
+;; install the missing packages
 (dolist (package package-list)
   (unless (package-installed-p package)
     (package-install package)))
@@ -63,9 +65,26 @@
 (require 'ido)
 (require 'ess-site)
 (require 'flycheck)
-(setq ido-enable-flex-matching t)
-(setq ido-everywhere t)
-(ido-mode 1)
+(require 'helm)
+(require 'helm-config)
+(require 'helm-descbinds)
+
+
+(helm-mode 1)
+(helm-descbinds-mode)
+
+(global-set-key (kbd "M-x") 'helm-M-x)
+(setq helm-M-x-fuzzy-match t)
+
+(global-set-key (kbd "C-x b") 'helm-mini)
+(setq helm-buffers-fuzzy-matching t
+      helm-recentf-fuzzy-match t)
+
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
+
+(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+(define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+(define-key helm-map (kbd "C-z") 'helm-select-action)
 
 (evil-leader/set-leader "SPC")
 (global-evil-leader-mode)
