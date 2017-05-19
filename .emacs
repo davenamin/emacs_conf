@@ -36,10 +36,13 @@
                      pandoc-mode
 		     markdown-mode
                      polymode
+		     conda
                      elpy
                      solarized-theme
                      zenburn-theme
 		     flycheck
+		     org
+		     syndicate
                      ;; (and more packages...)
                      ))
 
@@ -59,10 +62,11 @@
 ;;http://superuser.com/questions/127420/how-can-i-hide-the-tool-bar-in-emacs-persistently
 (tool-bar-mode -1)
 
-
+(require 'org)
+(setq evil-want-C-i-jump nil)
 (require 'evil)
 (require 'evil-leader)
-(require 'ido)
+(require 'syndicate)
 (require 'ess-site)
 (require 'flycheck)
 (require 'helm)
@@ -93,8 +97,20 @@
 
 (global-flycheck-mode)
 
-(setenv "WORKON_HOME" "C:/Miniconda3/envs")
-(pyvenv-mode 1)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(conda-anaconda-home "C:\\Miniconda3")
+)
+(require 'conda)
+(conda-env-initialize-interactive-shells)
+(conda-env-initialize-eshell)
+(conda-env-autoactivate-mode t)
+
+;(setenv "WORKON_HOME" "C:/Miniconda3/envs")
+;(pyvenv-mode 1)
 (elpy-enable)
 (elpy-use-ipython)
 
@@ -203,4 +219,11 @@
 
 
 (load-theme 'solarized-light t)
-(server-start)
+(require 'server)
+(unless (server-running-p) (server-start))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
