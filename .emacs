@@ -40,6 +40,7 @@
                      elpy
                      solarized-theme
                      zenburn-theme
+		     leuven-theme
 		     flycheck
 		     org
 		     syndicate
@@ -218,7 +219,7 @@
         (ess-show-buffer (buffer-name sbuffer) nil)))))
 
 
-(load-theme 'solarized-light t)
+(load-theme 'leuven t)
 (require 'server)
 (unless (server-running-p) (server-start))
 (custom-set-faces
@@ -227,3 +228,4 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
