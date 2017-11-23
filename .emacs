@@ -117,6 +117,29 @@
 ;; js2-mode
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
+;; use flycheck-eslint if in node_modules, else jshint. modified from:
+;; https://emacs.stackexchange.com/questions/21205/flycheck-with-file-relative-eslint-executable
+;; https://stackoverflow.com/questions/29066675/use-flycheck-with-eslint-on-emacs-when-editing-files-from-a-particular-project
+(defun my/use-eslint-from-node-modules ()
+  (let* ((root (locate-dominating-file
+                (or (buffer-file-name) default-directory)
+                "node_modules"))
+         (eslint (or
+		  (and root
+		       (expand-file-name "node_modules/.bin/eslint.cmd"
+					 root))
+		  (and root
+		       (expand-file-name "node_modules/eslint/bin/eslint.js"
+					 root)))))
+    (when (and eslint (file-executable-p eslint))
+      (progn
+	(setq-local flycheck-javascript-eslint-executable eslint)
+	(setq-local flycheck-disabled-checkers '(javascript-jshint))
+	(setq-local flycheck-checkers '(javascript-eslint))
+	))))
+
+(add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
+
 
 ;; keep scratch buffer and set mode to org
 ;; http://emacsredux.com/blog/2014/07/25/configure-the-scratch-buffers-mode/
