@@ -1,5 +1,7 @@
-;; Daven Amin
-;; a really basic .emacs that i plan on building up
+;;; Daven Amin
+;;; Commentary:
+;;; a really basic .emacs that i plan on building up
+;;; Code:
 
 ;; only if needed, proxy setup from
 ;; http://stackoverflow.com/questions/1595418/emacs-behind-http-proxy
@@ -45,10 +47,11 @@
 		     flycheck
 		     org
 		     syndicate
+		     persistent-scratch
                      ;; (and more packages...)
                      ))
 
-;; fetch the list of packages available 
+;; fetch the list of packages available
 (unless package-archive-contents
   (package-refresh-contents))
 
@@ -111,8 +114,16 @@
 (conda-env-initialize-eshell)
 (conda-env-autoactivate-mode t)
 
-;;(setenv "WORKON_HOME" "C:/Miniconda3/envs")
-;;(pyvenv-mode 1)
+;; js2-mode
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
+
+;; keep scratch buffer and set mode to org
+;; http://emacsredux.com/blog/2014/07/25/configure-the-scratch-buffers-mode/
+;; https://github.com/Fanael/persistent-scratch
+(setq initial-major-mode 'org-mode)
+(setq initial-scratch-message nil)
+(persistent-scratch-setup-default)
 
 ;; http://stackoverflow.com/questions/2680389/how-to-remove-all-files-ending-with-made-by-emacs
 (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
@@ -221,3 +232,9 @@
 (load-theme 'leuven t)
 (require 'server)
 (unless (server-running-p) (server-start))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
