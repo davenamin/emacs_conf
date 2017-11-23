@@ -3,9 +3,9 @@
 
 ;; only if needed, proxy setup from
 ;; http://stackoverflow.com/questions/1595418/emacs-behind-http-proxy
-;(setq url-proxy-services '(("no_proxy" . "work\\.com")
-;                           ("http" . "proxy.work.com:911")
-;			   ("https" . "proxy.work.com:911")))
+;;(setq url-proxy-services '(("no_proxy" . "work\\.com")
+;;                           ("http" . "proxy.work.com:911")
+;;			   ("https" . "proxy.work.com:911")))
 
 ;; only if needed, spellchecking on windows (need Aspell installed)
 ;; http://alienexp.blogspot.com/2013/04/emacs-flyspellispell-aspell-and-windows.html
@@ -37,7 +37,8 @@
 		     markdown-mode
                      polymode
 		     conda
-                     elpy
+		     python
+		     js2-mode
                      solarized-theme
                      zenburn-theme
 		     leuven-theme
@@ -104,16 +105,14 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(conda-anaconda-home "C:\\Miniconda3")
-)
+ )
 (require 'conda)
 (conda-env-initialize-interactive-shells)
 (conda-env-initialize-eshell)
 (conda-env-autoactivate-mode t)
 
-;(setenv "WORKON_HOME" "C:/Miniconda3/envs")
-;(pyvenv-mode 1)
-(elpy-enable)
-(elpy-use-ipython)
+;;(setenv "WORKON_HOME" "C:/Miniconda3/envs")
+;;(pyvenv-mode 1)
 
 ;; http://stackoverflow.com/questions/2680389/how-to-remove-all-files-ending-with-made-by-emacs
 (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
@@ -222,10 +221,3 @@
 (load-theme 'leuven t)
 (require 'server)
 (unless (server-running-p) (server-start))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-
