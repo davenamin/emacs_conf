@@ -48,6 +48,7 @@
 		     org
 		     syndicate
 		     persistent-scratch
+		     julia-mode
                      ;; (and more packages...)
                      ))
 
@@ -108,7 +109,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(conda-anaconda-home "C:\\Miniconda3")
- )
+ '(package-selected-packages
+   (quote
+    (julia-mode evil-mu4e syndicate polymode leuven-theme evil-leader conda auctex))))
 (require 'conda)
 (conda-env-initialize-interactive-shells)
 (conda-env-initialize-eshell)
@@ -220,6 +223,19 @@
      (setq comint-scroll-to-bottom-on-input 'this)
      ))
 
+;; https://www.reddit.com/r/Julia/comments/460fxo/help_julia_hangs_with_emacs_in_windows_10/
+;; https://github.com/emacs-ess/ESS/issues/377
+;; workaround for julia hiccups in ESS
+;;(setq inferior-julia-args "-L C:\\Users\\Daven\\.julia\\ess_workaround.jl")
+(when (and load-file-name (eq system-type 'windows-nt))
+  (setq inferior-julia-args
+        (format "-i -L%s" (expand-file-name "ess_workaround.jl" "~/.julia"))))
+
+;; disable eldoc for `julia'
+(defadvice julia (around disable-eldoc activate)
+  (let (ess-use-eldoc)
+    ad-do-it))
+
 ;;https://joostkremers.github.io/pandoc-mode/
 (add-hook 'markdown-mode-hook 'pandoc-mode)
 (add-hook 'pandoc-mode-hook 'pandoc-load-default-settings)
@@ -250,7 +266,6 @@
         (ess-execute R-cmd 'buffer nil nil)
         (switch-to-buffer rmd-buf)
         (ess-show-buffer (buffer-name sbuffer) nil)))))
-
 
 (load-theme 'leuven t)
 (require 'server)
