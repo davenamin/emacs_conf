@@ -31,24 +31,21 @@
 (setq package-list '(
                      evil
                      evil-leader
+                     evil-collection
                      ess
-		     helm
-		     helm-descbinds
+		     counsel
+		     magit
                      auctex
                      pandoc-mode
 		     markdown-mode
                      polymode
-		     conda
-		     python
-		     js2-mode
-                     solarized-theme
-                     zenburn-theme
 		     leuven-theme
 		     flycheck
 		     org
 		     syndicate
 		     persistent-scratch
-		     julia-mode
+                     js2-mode
+		     pdf-tools
                      ;; (and more packages...)
                      ))
 
@@ -68,33 +65,25 @@
 ;;http://superuser.com/questions/127420/how-can-i-hide-the-tool-bar-in-emacs-persistently
 (tool-bar-mode -1)
 
+(setq evil-want-integration t)
+(setq evil-want-keybinding nil)
+
 (require 'org)
-(setq evil-want-C-i-jump nil)
+
 (require 'evil)
 (require 'evil-leader)
+
+(when (require 'evil-collection nil t)
+  (evil-collection-init))
+
 (require 'syndicate)
 (require 'ess-site)
 (require 'flycheck)
-(require 'helm)
-(require 'helm-config)
-(require 'helm-descbinds)
 
-
-(helm-mode 1)
-(helm-descbinds-mode)
-
-(global-set-key (kbd "M-x") 'helm-M-x)
-(setq helm-M-x-fuzzy-match t)
-
-(global-set-key (kbd "C-x b") 'helm-mini)
-(setq helm-buffers-fuzzy-matching t
-      helm-recentf-fuzzy-match t)
-
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-
-(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-(define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
-(define-key helm-map (kbd "C-z") 'helm-select-action)
+(require 'ivy)
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
 
 (evil-leader/set-leader "SPC")
 (global-evil-leader-mode)
@@ -102,20 +91,6 @@
 (evil-mode 1)
 
 (global-flycheck-mode)
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(conda-anaconda-home "C:\\Miniconda3")
- '(package-selected-packages
-   (quote
-    (julia-mode evil-mu4e syndicate polymode leuven-theme evil-leader conda auctex))))
-(require 'conda)
-(conda-env-initialize-interactive-shells)
-(conda-env-initialize-eshell)
-(conda-env-autoactivate-mode t)
 
 ;; js2-mode
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
@@ -267,6 +242,8 @@
         (switch-to-buffer rmd-buf)
         (ess-show-buffer (buffer-name sbuffer) nil)))))
 
+(pdf-tools-install)
+
 (load-theme 'leuven t)
 (require 'server)
 (unless (server-running-p) (server-start))
@@ -276,3 +253,11 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (pdf-tools syndicate polymode persistent-scratch pandoc-mode markdown-mode leuven-theme js2-mode flycheck evil-leader evil-collection ess counsel auctex))))
