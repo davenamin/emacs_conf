@@ -30,6 +30,7 @@
 
 (setq package-list '(
 		     use-package
+		     exec-path-from-shell
                      evil
                      evil-leader
                      evil-collection
@@ -48,6 +49,7 @@
                      js2-mode
 		     pdf-tools
 		     lsp-mode
+		     lsp-ui
                      ;; (and more packages...)
                      ))
 
@@ -84,8 +86,9 @@
 ;; i don't want the frame title to say PRELUDE...
 (setq frame-title-format '("" invocation-name (:eval (if (buffer-file-name)
                                                          (abbreviate-file-name (buffer-file-name)) "%b"))))
-(pdf-tools-install)
-
+;; https://github.com/purcell/exec-path-from-shell
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
 
 ;; use-package
 ;; This is only needed once, near the top of the file
@@ -280,7 +283,16 @@
   (add-hook 'pandoc-mode-hook 'pandoc-load-default-settings)
   )
 
+(use-package lsp-mode
+  :hook (python-mode . lsp-deferred)
+  :commands (lsp lsp-deferred))
+
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  )
+
+(pdf-tools-install)
+
 (load-theme 'leuven t)
 (require 'server)
 (unless (server-running-p) (server-start))
-
