@@ -20,9 +20,7 @@
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/"))
-(when (< emacs-major-version 24)
-  ;; For important compatibility libraries like cl-lib
-  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
 
 ;; https://www.reddit.com/r/emacs/comments/3nm0cf/whats_the_best_way_to_sync_emacs_settings_between/
@@ -43,13 +41,15 @@
                      polymode
 		     leuven-theme
 		     flycheck
-		     org
-		     syndicate
+		     org-anki
 		     persistent-scratch
-                     js2-mode
-		     pdf-tools
-		     lsp-mode
-		     lsp-ui
+		     eglot
+		     tide
+		     company
+		     julia-mode
+		     eglot-jl
+		     eat
+		     eterm-256color
                      ;; (and more packages...)
                      ))
 
@@ -167,8 +167,6 @@
   (persistent-scratch-setup-default)
   )
 
-(use-package syndicate)
-
 (use-package ess-site
   :config
   ;; http://ess.r-project.org/Manual/ess.html#Command-History
@@ -235,36 +233,6 @@
   (setq enable-recursive-minibuffers t)
   )
 
-;; js2-mode
-(use-package js2-mode
-  :after flycheck
-  :config
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-
-  ;; use flycheck-eslint if in node_modules, else jshint. modified from:
-  ;; https://emacs.stackexchange.com/questions/21205/flycheck-with-file-relative-eslint-executable
-  ;; https://stackoverflow.com/questions/29066675/use-flycheck-with-eslint-on-emacs-when-editing-files-from-a-particular-project
-  (defun my/use-eslint-from-node-modules ()
-    (let* ((root (locate-dominating-file
-		  (or (buffer-file-name) default-directory)
-		  "node_modules"))
-	   (eslint (or
-		    (and root
-			 (expand-file-name "node_modules/.bin/eslint.cmd"
-					   root))
-		    (and root
-			 (expand-file-name "node_modules/eslint/bin/eslint.js"
-					   root)))))
-      (when (and eslint (file-executable-p eslint))
-	(progn
-	  (setq-local flycheck-javascript-eslint-executable eslint)
-	  (setq-local flycheck-disabled-checkers '(javascript-jshint))
-	  (setq-local flycheck-checkers '(javascript-eslint))
-	  ))))
-
-  (add-hook 'flycheck-mode-hook #'my/use-eslint-from-node-modules)
-  )
-
 (use-package polymode
   :config
   ;; MARKDOWN
@@ -283,16 +251,100 @@
   (add-hook 'pandoc-mode-hook 'pandoc-load-default-settings)
   )
 
-(use-package lsp-mode
-  :hook (python-mode . lsp-deferred)
-  :commands (lsp lsp-deferred))
-
-(use-package lsp-ui
-  :commands lsp-ui-mode
-  )
-
-(pdf-tools-install)
+(use-package tide
+  :ensure t
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
 
 (load-theme 'leuven t)
-(require 'server)
-(unless (server-running-p) (server-start))
+
+;;; ob-pikchr.el --- Babel Functions for pikchr -*- lexical-binding: t; -*-
+;; Copyright (c) 2023
+;; Author: Jeff Weisberg <tcp4me.com!jaw>
+;; Created: 2023-Apr-15 13:20 (EDT)
+;; Function: Org-Babel support for pikchr: https://pikchr.org
+
+
+;; This file is not part of GNU Emacs.
+;;
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+(require 'ob)
+
+(defvar org-babel-default-header-args:pikchr
+  '((:results . "file graphics") (:exports . "results"))
+  "Default arguments to use when evaluating a pikchr source block.")
+
+(defun org-babel-execute:pikchr (body params)
+  "Execute a block of pic code with org-babel.  This function is
+called by `org-babel-execute-src-block' via multiple-value-bind."
+  (let*
+      ((processed-params (org-babel-process-params params))
+       (out-file (cdr (or (assq :file processed-params)
+                          (user-error "You need to specify a :file parameter"))))
+       (file-ext (file-name-extension out-file))
+       (darkmode (if (assq :darkmode processed-params) "--dark-mode " ""))
+       (in-file (org-babel-temp-file "pikchr-" ".pic"))
+       (svg-file (if (or (null file-ext) (string-equal file-ext "svg"))
+                     out-file
+                   (org-babel-temp-file "pikchr-" ".svg")))
+       (cmd (concat "pikchr --svg-only " darkmode in-file)))
+
+    ;; actually execute the source-code block either in a session or
+    ;; possibly by dropping it to a temporary file and evaluating the
+    ;; file.
+    (with-temp-file in-file
+      (insert body))
+    (with-temp-file svg-file
+      (insert (org-babel-eval cmd "")))
+    (unless (string-equal svg-file out-file)
+      (with-temp-buffer
+        (let ((exit-code (call-process "convert" nil t nil svg-file out-file)))
+          (when (/= exit-code 0)
+            (org-babel-eval-error-notify exit-code (buffer-string))))))))
+
+
+(defun org-babel-prep-session:pikchr (_session _params)
+  "Return an error because pikchr does not support sessions."
+  (user-error "pikchr does not support sessions"))
+
+(provide 'ob-pikchr)
+
+(use-package eglot-jl
+  :config
+  (eglot-jl-init)
+  )
+
+(add-to-list 'org-preview-latex-process-alist
+	     '(tectonic :programs ("tectonic" "magick") 
+			:description "pdf > png"
+			:message "you need install the programs: tectonic and imagemagick."
+			:image-input-type "pdf" 
+			:image-output-type "png"
+			:image-size-adjust (1.0 . 1.0) 
+			:latex-compiler
+			("tectonic -Z shell-escape-cwd=%o --outfmt pdf --outdir %o %f")
+			:image-converter
+			("magick %f -density %D -trim -antialias -quality 300 %O")))
+(setq org-preview-latex-default-process 'tectonic)
+
+(setq org-latex-pdf-process '("tectonic -X compile --outdir=%o -Z shell-escape -Z continue-on-errors %f"))
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((julia . t)
+   (python . t)))
